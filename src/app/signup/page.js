@@ -8,17 +8,17 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    try {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
-      alert("Check your email for the login link!");
-      router.push("/login");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+    const handleSignUp = async (e) => {
+      e.preventDefault();
+      try {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        alert("Sign up successful! You can now log in.");
+        router.push("/login");
+      } catch (error) {
+        alert(error.message);
+      }
+    };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

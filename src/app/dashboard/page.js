@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 import ChartWidget from "../../components/ChartWidget";
+import { CSVLink } from "react-csv";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -32,14 +33,14 @@ export default function Dashboard() {
   }, []);
 
   const fetchData = async () => {
-    const response = await fetch("/api/dashboard-data");
-    const data = await response.json();
-    setData(data);
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+    try {
+      const response = await fetch("/api/dashboard-data");
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -48,16 +49,27 @@ export default function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("/api/dashboard-data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newData),
-    });
-    if (response.ok) {
+    try {
+      const response = await fetch("/api/dashboard-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newData),
+      });
+      if (!response.ok) throw new Error("Failed to add data");
       setNewData({ category: "", value: "", type: "line" });
       fetchData();
-    } else {
-      alert("Error adding new data");
+    } catch (error) {
+      console.error("Error adding new data:", error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      router.push("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
   };
 
@@ -66,7 +78,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar sidebarOpen={sidebarOpen} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
@@ -74,7 +86,7 @@ export default function Dashboard() {
           setSidebarOpen={setSidebarOpen}
           handleSignOut={handleSignOut}
         />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 dark:bg-gray-800">
           <div className="container mx-auto px-6 py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               <ChartWidget
@@ -94,15 +106,24 @@ export default function Dashboard() {
               />
             </div>
 
+            {/* Export Button */}
+            <CSVLink
+              data={data}
+              filename={"dashboard-data.csv"}
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
+            >
+              Export Data
+            </CSVLink>
+
             {/* Form for new data input */}
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-700 dark:text-white">
                 Add New Data
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
+                    className="block text-gray-700 dark:text-white text-sm font-bold mb-2"
                     htmlFor="category"
                   >
                     Category
@@ -119,7 +140,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
+                    className="block text-gray-700 dark:text-white text-sm font-bold mb-2"
                     htmlFor="value"
                   >
                     Value
@@ -136,7 +157,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <label
-                    className="block text-gray-700 text-sm font-bold mb-2"
+                    className="block text-gray-700 dark:text-white text-sm font-bold mb-2"
                     htmlFor="type"
                   >
                     Chart Type

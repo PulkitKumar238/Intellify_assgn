@@ -1,5 +1,3 @@
-
-
 export default function Sidebar({ sidebarOpen }) {
   return (
     <div

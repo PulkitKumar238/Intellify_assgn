@@ -23,7 +23,6 @@ const COLORS = [
   "#82ca9d",
 ];
 
-
 export default function ChartWidget({ title, type, data }) {
   const renderChart = () => {
     switch (type) {
@@ -80,6 +79,8 @@ export default function ChartWidget({ title, type, data }) {
             <Legend />
           </PieChart>
         );
+      default:
+        return null;
     }
   };
 

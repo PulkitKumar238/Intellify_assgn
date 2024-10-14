@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+    /* Add dark mode support */
+    .dark {
+      --tw-bg-opacity: 1;
+      background-color: rgba(31, 41, 55, var(--tw-bg-opacity));
+      /* Dark background */
+      --tw-text-opacity: 1;
+      color: rgba(255, 255, 255, var(--tw-text-opacity));
+      /* Light text */
+    }
+        body {
+          transition: background-color 0.3s ease;
+        }
